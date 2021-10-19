@@ -96,7 +96,7 @@ for (i in 1:nrow(tag_ids)) {
       allmsg_id$max <- ifelse(is.na(allmsg_id$max), 1, allmsg_id$max + 1)
 
       if(length(tbl_allmsg > 0)) {
-        allmsg <- wcUtils::read_allmsg(tbl_allmsg) %>%
+        allmsg <- wcUtils::read_allmsg(tbl_allmsg) %>% # TIME ZONES SET THROUGH wcUtils
           mutate(id = 1:n() + allmsg_id$max) %>%
           left_join(tag_ids, by = c("deployid")) %>%
           rename("loc_dt" = "loc_date") %>%
@@ -131,7 +131,7 @@ for (i in 1:nrow(tag_ids)) {
       behav_id$max <- ifelse(is.na(behav_id$max), 1, behav_id$max + 1)
 
       if(length(tbl_behav > 0)) {
-        behav <- wcUtils::read_behav(tbl_behav) %>%
+        behav <- wcUtils::read_behav(tbl_behav) %>% # TIME ZONES SET THROUGH wcUtils
           mutate(id = 1:n() + behav_id$max) %>%
           left_join(tag_ids, by = c("deployid")) %>%
           rename("message_count" = "count") %>%
@@ -170,6 +170,7 @@ for (i in 1:nrow(tag_ids)) {
           left_join(tag_ids, by = c("deployid")) %>%
           rename("corrupt_dt" = "date") %>%
           rename("possible_dt" = "possible_timestamp") %>%
+          # TIME ZONES EXPLICITLY SET
           mutate(
             corrupt_dt = as.POSIXct(corrupt_dt, format = "%H:%M:%S %d-%b-%Y ", tz = "UTC"),
             possible_dt = as.POSIXct(possible_dt, format = "%H:%M:%S %d-%b-%Y ", tz = "UTC")) %>%
@@ -226,17 +227,17 @@ for (i in 1:nrow(tag_ids)) {
       tbl_histos <- list.files(file.path(tag_ids$deployid[i]), pattern = "*-Histos.csv", full.names = TRUE)
 
       if(length(tbl_histos > 0)) {
-        histos <- wcUtils::read_histos(tbl_histos)
+        histos <- wcUtils::read_histos(tbl_histos) # TIME ZONES SET THROUGH wcUtils
 
-                # Process histos dive depth data to DB
+        # Process histos dive depth data to DB
         histos_divedepth_id <- RPostgreSQL::dbGetQuery(con, "SELECT max(id) FROM telem.tbl_wc_histos_divedepth")
         histos_divedepth_id$max <- ifelse(is.na(histos_divedepth_id$max), 1, histos_divedepth_id$max + 1)
 
-        histos_divedepth <- wcUtils::tidyDiveDepths(histos)
+        histos_divedepth <- wcUtils::tidyDiveDepths(histos) # TIME ZONES SET THROUGH wcUtils
 
         if(length(histos_divedepth) > 0) {
           if(nrow(histos_divedepth) > 0) {
-            histos_divedepth <- histos_divedepth %>%
+            histos_divedepth <- histos_divedepth %>% 
               mutate(id = 1:n() + histos_divedepth_id$max) %>%
               left_join(tag_ids, by = c("deployid")) %>%
               mutate(qa_status = 'unreviewed') %>%
@@ -259,7 +260,7 @@ for (i in 1:nrow(tag_ids)) {
         histos_diveduration_id <- RPostgreSQL::dbGetQuery(con, "SELECT max(id) FROM telem.tbl_wc_histos_diveduration")
         histos_diveduration_id$max <- ifelse(is.na(histos_diveduration_id$max), 1, histos_diveduration_id$max + 1)
 
-        histos_diveduration <- wcUtils::tidyDiveDurations(histos)
+        histos_diveduration <- wcUtils::tidyDiveDurations(histos) # TIME ZONES SET THROUGH wcUtils
 
         if(length(histos_diveduration) > 0) {
           if(nrow(histos_diveduration) > 0) {
@@ -287,7 +288,7 @@ for (i in 1:nrow(tag_ids)) {
         histos_timeatdepth_id <- RPostgreSQL::dbGetQuery(con, "SELECT max(id) FROM telem.tbl_wc_histos_timeatdepth")
         histos_timeatdepth_id$max <- ifelse(is.na(histos_timeatdepth_id$max), 1, histos_timeatdepth_id$max + 1)
 
-        histos_timeatdepth <- wcUtils::tidyTimeAtDepth(histos)
+        histos_timeatdepth <- wcUtils::tidyTimeAtDepth(histos) # TIME ZONES SET THROUGH wcUtils
 
         if(length(histos_timeatdepth) > 0) {
           if(nrow(histos_timeatdepth) > 0) {
@@ -315,7 +316,7 @@ for (i in 1:nrow(tag_ids)) {
         histos_timeline_id <- RPostgreSQL::dbGetQuery(con, "SELECT max(id) FROM telem.tbl_wc_histos_timeline")
         histos_timeline_id$max <- ifelse(is.na(histos_timeline_id$max), 1, histos_timeline_id$max + 1)
         
-        histos_timeline <- wcUtils::tidyTimelines(histos)
+        histos_timeline <- wcUtils::tidyTimelines(histos) # TIME ZONES SET THROUGH wcUtils
         
         if(length(histos_timeline) > 0) {
           if(nrow(histos_timeline) > 0) {
@@ -359,7 +360,7 @@ for (i in 1:nrow(tag_ids)) {
       locs_id$max <- ifelse(is.na(locs_id$max), 1, locs_id$max + 1)
       
       if(length(tbl_locs > 0)) {
-        locs <- wcUtils::read_locs(tbl_locs) %>%
+        locs <- wcUtils::read_locs(tbl_locs) %>% # TIME ZONES SET THROUGH wcUtils
           mutate(id = 1:n() + locs_id$max) %>%
           left_join(tag_ids, by = c("deployid")) %>%
           rename("locs_dt" = "date_time") %>%
@@ -398,6 +399,7 @@ for (i in 1:nrow(tag_ids)) {
           rename("received_dt" = "received") %>%
           rename("rtc_dt" = "rtc") %>%
           rename("release_dt" = "release_time") %>%
+          # TIME ZONES EXPLICITLY SET
           mutate(
             received_dt = as.POSIXct(received_dt, format = "%H:%M:%S %d-%b-%Y ", tz = "UTC"),
             release_dt = as.POSIXct(release_dt, format = "%H:%M:%S %d-%b-%Y ", tz = "UTC"),
