@@ -1,0 +1,74 @@
+insert into telem.adfg_histos_timeline 
+select row_number() over (order by deploy_id, timeline_start_dt) as id, a.*
+from (select deploy_id, deployid, 'Percent' as hist_type, hist_dt + Interval '0 hour' as timeline_start_dt, bin01 as percent_dry
+from telem.adfg_histos_raw
+union
+select deploy_id, deployid, 'Percent' as hist_type, hist_dt + Interval '1 hour' as timeline_start_dt, bin02 as percent_dry
+from telem.adfg_histos_raw
+union
+select deploy_id, deployid, 'Percent' as hist_type, hist_dt + Interval '2 hour' as timeline_start_dt, bin03 as percent_dry
+from telem.adfg_histos_raw
+union
+select deploy_id, deployid, 'Percent' as hist_type, hist_dt + Interval '3 hour' as timeline_start_dt, bin04 as percent_dry
+from telem.adfg_histos_raw
+union
+select deploy_id, deployid, 'Percent' as hist_type, hist_dt + Interval '4 hour' as timeline_start_dt, bin05 as percent_dry
+from telem.adfg_histos_raw
+union
+select deploy_id, deployid, 'Percent' as hist_type, hist_dt + Interval '5 hour' as timeline_start_dt, bin06 as percent_dry
+from telem.adfg_histos_raw
+union
+select deploy_id, deployid, 'Percent' as hist_type, hist_dt + Interval '6 hour' as timeline_start_dt, bin07 as percent_dry
+from telem.adfg_histos_raw
+union
+select deploy_id, deployid, 'Percent' as hist_type, hist_dt + Interval '7 hour' as timeline_start_dt, bin08 as percent_dry
+from telem.adfg_histos_raw
+union
+select deploy_id, deployid, 'Percent' as hist_type, hist_dt + Interval '8 hour' as timeline_start_dt, bin09 as percent_dry
+from telem.adfg_histos_raw
+union
+select deploy_id, deployid, 'Percent' as hist_type, hist_dt + Interval '9 hour' as timeline_start_dt, bin10 as percent_dry
+from telem.adfg_histos_raw
+union
+select deploy_id, deployid, 'Percent' as hist_type, hist_dt + Interval '10 hour' as timeline_start_dt, bin11 as percent_dry
+from telem.adfg_histos_raw
+union
+select deploy_id, deployid, 'Percent' as hist_type, hist_dt + Interval '11 hour' as timeline_start_dt, bin12 as percent_dry
+from telem.adfg_histos_raw
+union
+select deploy_id, deployid, 'Percent' as hist_type, hist_dt + Interval '12 hour' as timeline_start_dt, bin13 as percent_dry
+from telem.adfg_histos_raw
+union
+select deploy_id, deployid, 'Percent' as hist_type, hist_dt + Interval '13 hour' as timeline_start_dt, bin14 as percent_dry
+from telem.adfg_histos_raw
+union
+select deploy_id, deployid, 'Percent' as hist_type, hist_dt + Interval '14 hour' as timeline_start_dt, bin15 as percent_dry
+from telem.adfg_histos_raw
+union
+select deploy_id, deployid, 'Percent' as hist_type, hist_dt + Interval '15 hour' as timeline_start_dt, bin16 as percent_dry
+from telem.adfg_histos_raw
+union
+select deploy_id, deployid, 'Percent' as hist_type, hist_dt + Interval '16 hour' as timeline_start_dt, bin17 as percent_dry
+from telem.adfg_histos_raw
+union
+select deploy_id, deployid, 'Percent' as hist_type, hist_dt + Interval '17 hour' as timeline_start_dt, bin18 as percent_dry
+from telem.adfg_histos_raw
+union
+select deploy_id, deployid, 'Percent' as hist_type, hist_dt + Interval '18 hour' as timeline_start_dt, bin19 as percent_dry
+from telem.adfg_histos_raw
+union
+select deploy_id, deployid, 'Percent' as hist_type, hist_dt + Interval '19 hour' as timeline_start_dt, bin20 as percent_dry
+from telem.adfg_histos_raw
+union
+select deploy_id, deployid, 'Percent' as hist_type, hist_dt + Interval '20 hour' as timeline_start_dt, bin21 as percent_dry
+from telem.adfg_histos_raw
+union
+select deploy_id, deployid, 'Percent' as hist_type, hist_dt + Interval '21 hour' as timeline_start_dt, bin22 as percent_dry
+from telem.adfg_histos_raw
+union
+select deploy_id, deployid, 'Percent' as hist_type, hist_dt + Interval '22 hour' as timeline_start_dt, bin23 as percent_dry
+from telem.adfg_histos_raw
+union
+select deploy_id, deployid, 'Percent' as hist_type, hist_dt + Interval '23 hour' as timeline_start_dt, bin24 as percent_dry
+from telem.adfg_histos_raw) a
+order by deploy_id, timeline_start_dt
