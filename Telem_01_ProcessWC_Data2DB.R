@@ -50,7 +50,8 @@ dat <- c("tbl_wc__data_import_status",
          "tbl_wc_histos_timeatdepth",
          "tbl_wc_histos_timeline", 
          "geo_wc_locs", 
-         "tbl_wc_status"
+         "tbl_wc_status",
+         "tbl_wc_haulout"
          )
 
 for (i in 1:length(dat)){
@@ -74,6 +75,7 @@ missing_histos_timeatdepth <- ""
 missing_histos_timeline <- ""
 missing_locs <- ""
 missing_status <- ""
+missing_haulout <- ""
 
 # Import data to DB
 for (i in 1:nrow(tag_ids)) {
@@ -421,6 +423,43 @@ for (i in 1:nrow(tag_ids)) {
       }
       rm(tbl_status, status_id)
     })
+    
+    #Process haulout data to DB
+    try({
+      tbl_haulout <- list.files(file.path(tag_ids$deployid[i]), pattern = "*-HaulOut.csv", full.names = TRUE)
+      
+      haulout_id <- RPostgreSQL::dbGetQuery(con, "SELECT max(id) FROM telem.tbl_wc_haulout")
+      haulout_id$max <- ifelse(is.na(haulout_id$max), 1, haulout_id$max + 1)
+      
+      if(length(tbl_haulout) > 0) {
+        haulout <- read.table(tbl_haulout, sep = ",", header = TRUE, stringsAsFactors = FALSE) %>%
+          clean_names(., "snake") %>%
+          rename("haulout_identifier" = "id") %>%
+          mutate(id = 1:n() + haulout_id$max) %>%
+          rename("deployid" = "deploy_id") %>%
+          left_join(tag_ids, by = c("deployid")) %>%
+          rename("haulout_start_dt" = "start") %>%
+          rename("haulout_end_dt" = "end") %>%
+          # TIME ZONES EXPLICITLY SET
+          mutate(
+            haulout_start_dt = as.POSIXct(haulout_start_dt, format = "%H:%M:%S %d-%b-%Y ", tz = "UTC"),
+            haulout_end_dt = as.POSIXct(haulout_end_dt, format = "%H:%M:%S %d-%b-%Y ", tz = "UTC")) %>%
+          mutate(
+            latitude = ifelse(is.na(latitude), 0, latitude),
+            longitude = ifelse(is.na(longitude), 0, longitude)) %>%
+          select("id", "deploy_id", "deployid", "ptt", "instr", "haulout_identifier", "haulout_start_dt" , "haulout_end_dt", "duration", "location_quality",
+                 #"latitude", "longitude"
+                 )
+        
+        RPostgreSQL::dbWriteTable(con, c("telem", "tbl_wc_haulout"), haulout, append = TRUE, row.names = FALSE)
+        print("Imported data into telem.tbl_wc_haulout")
+        rm(haulout)
+      } else {
+        # print("No *-Haulout.csv file")
+        missing_haulout <- c(missing_haulout, tag_ids$deployid[i])
+      }
+      rm(tbl_haulout, haulout_id)
+    })
   })
 }
 
@@ -432,6 +471,7 @@ rm(r, i, sql, wd)
 
 # RPostgreSQL::dbSendQuery(con, "ALTER TABLE telem.geo_wc_locs ADD COLUMN geom geometry(POINT, 4326)")
 RPostgreSQL::dbSendQuery(con, "UPDATE telem.geo_wc_locs SET geom = ST_SetSRID(ST_MakePoint(longitude, latitude), 4326)")
+RPostgreSQL::dbSendQuery(con, "UPDATE telem.tbl_wc_haulout SET geom = ST_SetSRID(ST_MakePoint(longitude, latitude), 4326)")
 
 # Identify data import status for each table and import to database
 missing_allmsg <- data.frame(deployid = missing_allmsg, stringsAsFactors = FALSE) %>%
@@ -551,6 +591,18 @@ data_status <- data_status %>%
   mutate(data_type = "status")
 rm(missing_status, noDB_status)
 
+missing_haulout <- data.frame(deployid = missing_haulout, stringsAsFactors = FALSE) %>%
+  mutate(status = "no CSV file") %>%
+  filter(deployid != "")
+data_haulout <- RPostgreSQL::dbGetQuery(con, "SELECT DISTINCT deployid, \'imported\' as status FROM telem.tbl_wc_haulout") %>%
+  dplyr::bind_rows(missing_haulout) 
+noDB_haulout <- data.frame(deployid = setdiff(tag_ids$deployid, data_haulout$deployid), stringsAsFactors = FALSE) %>%
+  mutate(status = "failed to import")
+data_haulout <- data_haulout %>%
+  dplyr::bind_rows(noDB_haulout) %>%
+  mutate(data_type = "haulout")
+rm(missing_haulout, noDB_haulout)
+
 dataStatus_2DB <- data_allmsg %>%
   dplyr::bind_rows(data_behav) %>%
   dplyr::bind_rows(data_corrupt) %>%
@@ -560,6 +612,7 @@ dataStatus_2DB <- data_allmsg %>%
   dplyr::bind_rows(data_histos_timeline) %>%
   dplyr::bind_rows(data_locs) %>%
   dplyr::bind_rows(data_status) %>%
+  dplyr::bind_rows(data_haulout) %>%
   select("data_type", "deployid", "status")
 
 RPostgreSQL::dbWriteTable(con, c("telem", "tbl_wc__data_import_status"), dataStatus_2DB, append = TRUE, row.names = FALSE)
@@ -568,7 +621,7 @@ failed_to_import <- dataStatus_2DB %>%
   filter(status != "failed to import")
   
 rm(dataStatus_2DB, data_allmsg, data_behav, data_corrupt, data_histos_divedepth, data_histos_diveduration,
-   data_histos_timeatdepth, data_histos_timeline, data_locs, data_status)
+   data_histos_timeatdepth, data_histos_timeline, data_locs, data_status, data_haulout)
 
 # Disconnect for database and delete unnecessary variables 
 dbDisconnect(con)
