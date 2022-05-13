@@ -245,7 +245,7 @@ for (i in 1:nrow(tag_ids)) {
               mutate(qa_status = 'unreviewed') %>%
               mutate(data_status = 'use') %>%
               mutate(data_explain = 'unreviewed') %>%
-              select("id", "deploy_id", "deployid", "divedepth_dt", "bin", "num_dives", "qa_status", "data_status", "data_explain")
+              select("id", "deploy_id", "deployid", "divedepth_dt", "bin", "num_dives", "qa_status", "data_status", "data_explain", "bin_upper_limit")
             RPostgreSQL::dbWriteTable(con, c("telem", "tbl_wc_histos_divedepth"), histos_divedepth, append = TRUE, row.names = FALSE)
             print("Imported data into telem.tbl_wc_histos_divedepth")
           } else {
@@ -300,7 +300,7 @@ for (i in 1:nrow(tag_ids)) {
               mutate(qa_status = 'unreviewed') %>%
               mutate(data_status = 'use') %>%
               mutate(data_explain = 'unreviewed') %>%
-              select("id", "deploy_id", "deployid", "tad_start_dt", "bin", "pct_tad", "qa_status", "data_status", "data_explain")
+              select("id", "deploy_id", "deployid", "tad_start_dt", "bin", "pct_tad", "qa_status", "data_status", "data_explain", "bin_upper_limit")
 
             RPostgreSQL::dbWriteTable(con, c("telem", "tbl_wc_histos_timeatdepth"), histos_timeatdepth, append = TRUE, row.names = FALSE)
             print("Imported data into telem.tbl_wc_histos_timeatdepth")
