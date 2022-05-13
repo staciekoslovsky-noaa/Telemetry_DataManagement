@@ -35,7 +35,8 @@ con <- RPostgreSQL::dbConnect(PostgreSQL(),
                               host = Sys.getenv("pep_ip"), 
                               #port = Sys.getenv("pep_port"), 
                               user = Sys.getenv("pep_admin"), 
-                              rstudioapi::askForPassword(paste("Enter your DB password for user account: ", Sys.getenv("pep_admin"), sep = "")))
+                              password = Sys.getenv("admin_pw"))
+                              #rstudioapi::askForPassword(paste("Enter your DB password for user account: ", Sys.getenv("pep_admin"), sep = "")))
 
 tag_ids <- RPostgreSQL::dbGetQuery(con, "SELECT id as deploy_id, deployid FROM telem.tbl_deploy WHERE (deploy_dt <> end_dt) OR (deploy_dt IS NOT NULL and end_dt IS NULL) ORDER BY deployid")
 
