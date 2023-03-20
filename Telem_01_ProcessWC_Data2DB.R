@@ -15,10 +15,10 @@ install_pkg <- function(x)
 # Install libraries ----------------------------------------------
 #install_pkg("devtools")
 #install_github("jmlondon/wcUtils")
+install_pkg("tidyverse")
 install_pkg("remotes")
 remotes::install_github('jmlondon/wcUtils@dev')
 install_pkg("RPostgreSQL")
-install_pkg("tidyverse")
 install_pkg("janitor")
 
 # Run code -------------------------------------------------------
