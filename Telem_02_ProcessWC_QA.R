@@ -20,13 +20,19 @@ install_pkg("RPostgreSQL")
 con <- RPostgreSQL::dbConnect(PostgreSQL(), 
                               dbname = Sys.getenv("pep_db"), 
                               host = Sys.getenv("pep_ip"), 
-                              #port = Sys.getenv("pep_port"), 
                               user = Sys.getenv("pep_admin"), 
                               password = Sys.getenv("admin_pw"))
-                              #rstudioapi::askForPassword(paste("Enter your DB password for user account: ", Sys.getenv("pep_admin"), sep = "")))
+
+
+# Reset QA fields, if needed
+RPostgreSQL::dbSendQuery(con, "UPDATE telem.geo_wc_locs SET qa_status = \'unreviewed\', data_status = \'use\', data_explain = \'unreviewed\'") 
+RPostgreSQL::dbSendQuery(con, "UPDATE telem.tbl_wc_behav SET qa_status = \'unreviewed\', data_status = \'use\', data_explain = \'unreviewed\'") 
+RPostgreSQL::dbSendQuery(con, "UPDATE telem.tbl_wc_histos_divedepth SET qa_status = \'unreviewed\', data_status = \'use\', data_explain = \'unreviewed\'") 
+RPostgreSQL::dbSendQuery(con, "UPDATE telem.tbl_wc_histos_diveduration SET qa_status = \'unreviewed\', data_status = \'use\', data_explain = \'unreviewed\'") 
+RPostgreSQL::dbSendQuery(con, "UPDATE telem.tbl_wc_histos_timeatdepth SET qa_status = \'unreviewed\', data_status = \'use\', data_explain = \'unreviewed\'") 
+RPostgreSQL::dbSendQuery(con, "UPDATE telem.tbl_wc_histos_timeline SET qa_status = \'unreviewed\', data_status = \'use\', data_explain = \'unreviewed\'") 
 
 # Update qa_status, data_status and data_explain fields in the DB
-
 # Set records as data_status = tag_actively_transmitting based on end_dt
 RPostgreSQL::dbSendQuery(con, "UPDATE telem.geo_wc_locs
                                 SET qa_status = \'tag_actively_transmitting\'
