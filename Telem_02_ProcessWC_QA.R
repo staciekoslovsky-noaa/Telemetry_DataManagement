@@ -249,6 +249,13 @@ RPostgreSQL::dbSendQuery(con, "UPDATE telem.tbl_wc_histos_timeline g
                                 WHERE deployid = \'EB2012_3003_10S0625\'
                                 AND timeline_start_dt >= \'2013-05-26 00:00:00+00\'")
 
+RPostgreSQL::dbSendQuery(con, "UPDATE telem.tbl_wc_histos_timeline g
+                                SET qa_status = \'reviewed\',
+                                  data_status = \'do_not_use\',
+                                  data_explain = \'wet-dry sensors suspected to be compromised\'
+                                WHERE deployid = \'EB2009_7010_08S0236\'
+                                AND timeline_start_dt >= \'2010-03-21 00:00:00+00\'")
+
 # Disconnect for database and delete unnecessary variables 
 dbDisconnect(con)
 rm(con)
